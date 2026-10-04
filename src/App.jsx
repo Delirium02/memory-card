@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 export default function App() {
+	const [visible, setVisible] = useState(true);
 	const [champs, setChamps] = useState([]);
-	const numOfChamps = 10;
-  const version = "16.19.1";
+	const numOfChamps = 12;
+	const version = "16.19.1";
 
 	async function fetchLeagueCards() {
 		try {
@@ -14,37 +15,49 @@ export default function App() {
 
 			const allChamps = Object.values(data.data);
 
-			const shuffled = allChamps.sort(() => 0.5 - Math.random());
+			const shuffled = [...allChamps];
+			for (let i = shuffled.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+			}
 
 			const selectedChamps = shuffled
 				.slice(0, numOfChamps)
 				.map((champ) => ({
 					id: champ.id,
 					name: champ.name,
-					image: `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${champ.image.full}`,
+					image: `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ.id}_0.jpg`,
 				}));
 
-      setChamps(selectedChamps);
-
-			console.log(data);
-		} catch {
-			console.error("Error fetching League card data");
+			setChamps(selectedChamps);
+		} catch (error) {
+			console.error("Error fetching League card data", error);
 		}
 	}
 
 	return (
 		<div>
-      <h1>Memory Card Game</h1>
-      <button onClick={fetchLeagueCards}>Fetch League Cards</button>
+			<h1 className="game-title">Memory Card Game</h1>
+			{visible && (
+				<button
+					onClick={() => {
+						fetchLeagueCards();
+						setVisible(false);
+					}}
+					className="fetch-button"
+				>
+					Fetch League Cards
+				</button>
+			)}
 
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "20px" }}>
-        {champs.map((champ) => (
-          <div key={champ.id} style={{ border: "1px solid #ccc", padding: "10px", textAlign: "center" }}>
-            <img src={champ.image} alt={champ.name} style={{ width: "80px", height: "80px" }} />
-            <p>{champ.name}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+			<div className="card-container">
+				{champs.map((champ) => (
+					<div key={champ.id} className="card">
+						<img src={champ.image} alt={champ.name} />
+						<p className="card-name">{champ.name}</p>
+					</div>
+				))}
+			</div>
+		</div>
 	);
 }
