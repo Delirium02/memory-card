@@ -1,10 +1,21 @@
 import { useState } from "react";
 
 export default function App() {
-	const [visible, setVisible] = useState(true);
+	const [buttonText, setButtonText] = useState("Fetch League Cards");
 	const [champs, setChamps] = useState([]);
+	const [endGame, setEndGame] = useState(false);
+
+	const [clickedChamps, setClickedChamps] = useState([]);
+	const [score, setScore] = useState(0);
+	const [highScore, setHighScore] = useState(0);
+	
+
 	const numOfChamps = 12;
 	const version = "16.19.1";
+
+	function changeButtonText() {
+		setButtonText("Shuffle");
+	}
 
 	async function fetchLeagueCards() {
 		try {
@@ -35,25 +46,41 @@ export default function App() {
 		}
 	}
 
+	function champsMemory(champName) {
+		if (clickedChamps.includes(champName)) {
+			setEndGame(true);
+			setClickedChamps([]);
+			setScore(0);
+			return;
+		}
+
+		setClickedChamps([...clickedChamps, champName])
+		setScore(score + 1);
+	}
+
 	return (
 		<div>
 			<h1 className="game-title">Memory Card Game</h1>
-			{visible && (
-				<button
-					onClick={() => {
-						fetchLeagueCards();
-						setVisible(false);
-					}}
-					className="fetch-button"
-				>
-					Fetch League Cards
-				</button>
-			)}
+
+			<button
+				onClick={() => {
+					fetchLeagueCards();
+					changeButtonText();
+				}}
+				className="fetch-button"
+			>
+				{buttonText}
+			</button>
 
 			<div className="card-container">
 				{champs.map((champ) => (
 					<div key={champ.id} className="card">
-						<img src={champ.image} alt={champ.name} />
+						<img
+							src={champ.image}
+							alt={champ.name}
+							className="card-image"
+							onClick={() => {champsMemory(champ.name)}}
+						/>
 						<p className="card-name">{champ.name}</p>
 					</div>
 				))}
