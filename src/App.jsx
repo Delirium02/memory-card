@@ -8,7 +8,6 @@ export default function App() {
 	const [clickedChamps, setClickedChamps] = useState([]);
 	const [score, setScore] = useState(0);
 	const [highScore, setHighScore] = useState(0);
-	
 
 	const numOfChamps = 12;
 	const version = "16.19.1";
@@ -41,6 +40,9 @@ export default function App() {
 				}));
 
 			setChamps(selectedChamps);
+			
+			setScore(0);
+			setHighScore(0);
 		} catch (error) {
 			console.error("Error fetching League card data", error);
 		}
@@ -54,8 +56,20 @@ export default function App() {
 			return;
 		}
 
-		setClickedChamps([...clickedChamps, champName])
-		setScore(score + 1);
+		const nextScore = score + 1;
+		setClickedChamps([...clickedChamps, champName]);
+		setScore(nextScore);
+
+		if (nextScore > highScore) {
+			setHighScore(nextScore);
+		}
+
+		const shuffle = [...champs];
+		for (let i = shuffle.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[shuffle[i], shuffle[j]] = [shuffle[j], shuffle[i]];
+		}
+		setChamps(shuffle);
 	}
 
 	return (
@@ -72,6 +86,9 @@ export default function App() {
 				{buttonText}
 			</button>
 
+			<div className="score">Score: {score}</div>
+			<div className="high-score">High Score: {highScore}</div>
+
 			<div className="card-container">
 				{champs.map((champ) => (
 					<div key={champ.id} className="card">
@@ -79,7 +96,9 @@ export default function App() {
 							src={champ.image}
 							alt={champ.name}
 							className="card-image"
-							onClick={() => {champsMemory(champ.name)}}
+							onClick={() => {
+								champsMemory(champ.name);
+							}}
 						/>
 						<p className="card-name">{champ.name}</p>
 					</div>
