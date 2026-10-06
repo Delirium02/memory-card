@@ -40,12 +40,22 @@ export default function App() {
 				}));
 
 			setChamps(selectedChamps);
-			
+
 			setScore(0);
 			setHighScore(0);
+			champsMemory([]);
 		} catch (error) {
 			console.error("Error fetching League card data", error);
 		}
+	}
+
+	function shuffleChamps() {
+		const shuffle = [...champs];
+		for (let i = shuffle.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[shuffle[i], shuffle[j]] = [shuffle[j], shuffle[i]];
+		}
+		setChamps(shuffle);
 	}
 
 	function champsMemory(champName) {
@@ -53,6 +63,7 @@ export default function App() {
 			setEndGame(true);
 			setClickedChamps([]);
 			setScore(0);
+			shuffleChamps();
 			return;
 		}
 
@@ -64,12 +75,7 @@ export default function App() {
 			setHighScore(nextScore);
 		}
 
-		const shuffle = [...champs];
-		for (let i = shuffle.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[shuffle[i], shuffle[j]] = [shuffle[j], shuffle[i]];
-		}
-		setChamps(shuffle);
+		shuffleChamps();
 	}
 
 	return (
